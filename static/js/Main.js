@@ -1,34 +1,55 @@
 var net;
-$(document).ready(() => {
+$(document).ready(async () => {
     net = new Net();
-    net.getAll()
-        .then(x => {
-            $("#data").val(JSON.stringify(x))
-                .width(1000)
-                .height(500)
-
-            x.forEach(element => {
-                $("#chooseId").append($("<option>").html(element._id));
-            });
-        })
-
-    $("#add").on("click", () => {
+    var users = await net.getAll()
+    $("#data").val(JSON.stringify(users))
+        .width(1000)
+        .height(500)
+    users.forEach(element => {
+        $("#chooseId").append($("<option>").html(element._id));
+    });
+    $("#add").on("click", async () => {
         var username = $("#username").val();
         var password = $("#password").val();
-        net.createUser(username, password)
-            .then(x => {
-                return net.getAll()
-            })
-            .then(x => {
-                $("#data").val(JSON.stringify(x))
-            })
+        await net.createUser(username, password)
+        var users = await net.getAll()
+        $("#data").val(JSON.stringify(users))
+        $("#chooseId").empty();
+        users.forEach(element => {
+            $("#chooseId").append($("<option>").html(element._id));
+        });
+    })
+    $("#refresh").on("click", async () => {
+        var users = await net.getAll()
+        $("#data").val(JSON.stringify(users))
+        $("#chooseId").empty();
+        users.forEach(element => {
+            $("#chooseId").append($("<option>").html(element._id));
+        });
     })
 
-    $("#refesh").on("click", () => {
-        console.log("hier")
-        net.getAll()
-            .then(x => {
-                $("#data").val(JSON.stringify(x))
-            })
+    $("#update").on("click", async () => {
+        var id = $("#chooseId").val();
+        var password = $("#password").val();
+        await net.update(id, password);
+        var users = await net.getAll()
+        $("#data").val(JSON.stringify(users))
+        $("#chooseId").empty();
+        users.forEach(element => {
+            $("#chooseId").append($("<option>").html(element._id));
+        });
     })
+
+    $("#delete").on("click", async () => {
+        var id = $("#chooseId").val();
+        await net.remove(id);
+        var users = await net.getAll()
+        $("#data").val(JSON.stringify(users))
+        $("#chooseId").empty();
+        users.forEach(element => {
+            $("#chooseId").append($("<option>").html(element._id));
+        });
+    })
+
 })
+

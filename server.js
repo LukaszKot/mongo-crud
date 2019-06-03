@@ -68,6 +68,7 @@ var server = http.createServer((req, res) => {
             })
             .then(x => {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.write("[]");
                 res.end();
             })
 
@@ -85,6 +86,7 @@ var server = http.createServer((req, res) => {
         userService.delete(id)
             .then(x => {
                 res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.write("[]")
                 res.end();
             })
     }
@@ -94,6 +96,7 @@ var server = http.createServer((req, res) => {
                 userService.update(body.id, body.password)
                     .then(x => {
                         res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.write("[]")
                         res.end();
                     })
             })
