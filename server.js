@@ -1,8 +1,9 @@
 var http = require('http');
 var mongoClient = require('mongodb').MongoClient;
-var ObjectID = require('mongodb').ObjectID;
 var fs = require("fs");
 var path = require('path')
+var UserService = require("./services/userService.js").UserService;
+var userService;
 var _db;
 var mimeTypes = {
     "js": "text/javascript",
@@ -29,9 +30,7 @@ mongoClient.connect("mongodb://localhost/3id2", (err, db) => {
     if (err) console.log(err);
     else console.log("mongo connected");
     _db = db;
-    db.createCollection("users", function (err, coll) {
-        console.log("kolekcja powstała, sprawdź w konsoli mongo")
-    })
+    userService = new UserService(db);
 })
 
 var getBody = (req) => {
@@ -65,7 +64,38 @@ var server = http.createServer((req, res) => {
     else if (req.url == "/users" && req.method == "POST") {
         getBody(req)
             .then(body => {
+                return userService.insert(body);
+            })
+            .then(x => {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end();
+            })
 
+    }
+    else if (req.url == "/users" && req.method == "GET") {
+        userService.getAll()
+            .then(x => {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.write(JSON.stringify(x));
+                res.end();
+            })
+    }
+    else if (req.url.includes("/users") && req.method == "DELETE") {
+        var id = req.url.split("/").pop();
+        userService.delete(id)
+            .then(x => {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end();
+            })
+    }
+    else if (req.url == "/users" && req.method == "PUT") {
+        getBody(req)
+            .then(body => {
+                userService.update(body.id, body.password)
+                    .then(x => {
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end();
+                    })
             })
     }
     else {
